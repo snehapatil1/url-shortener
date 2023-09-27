@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +21,7 @@ func setupRoutes() {
 	http.HandleFunc("/", homePageForm)
 	http.HandleFunc("/shortenURL", shortenURL)
 	http.HandleFunc("/redirectURL/", redirectURL)
+	http.HandleFunc("/getTopDomains/", getTopDomains)
 }
 
 func main() {
@@ -184,4 +186,51 @@ func redirectURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, originalURL, http.StatusMovedPermanently)
+}
+
+func getTopDomains(w http.ResponseWriter, r *http.Request) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	domains := make([][]string, 0, len(domainCountMap))
+	for key, value := range domainCountMap {
+		domains = append(domains, []string{key, fmt.Sprintf("%d", value)})
+	}
+	sort.Slice(domains, func(i, j int) bool {
+		return domains[i][1] > domains[j][1]
+	})
+
+	final := make([][]string, 0, len(domains))
+
+	count := 3
+	if len(domains) < 3 {
+		count = len(domains)
+	}
+	for i := 0; i < count; i++ {
+		final = append(final, domains[i])
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+
+	htmlResponse := `
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<title><center>Top Domains:</center></title>
+		</head>
+		<body>
+			<h1 style="color: #9370DB;"><center>Top Domains:</center></h1>
+	`
+
+	for _, domain := range final {
+		htmlResponse += "<h3><center>" + domain[0] + " : " + domain[1] + "</center></h3>\n"
+	}
+
+	htmlResponse += `
+		</body>
+		</html>
+	`
+
+	fmt.Fprint(w, htmlResponse)
+
 }
