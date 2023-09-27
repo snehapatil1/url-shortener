@@ -56,8 +56,10 @@ The service will be accessible at `http://localhost:3030`.
 ### Shortening URLs
 
 1. Access the URL Shortener web interface at http://localhost:3030. The homepage will look something like this:
+
 ![Homepage](https://github.com/snehapatil1/url-shortener/blob/master/images/homepage.png)
 2. Enter a long URL into the input field and click the "Shorten" button. On clicking Shorten button, you will get output as below:
+
 ![Shortened URL](https://github.com/snehapatil1/url-shortener/blob/master/images/shortened_url.png)
 3. You will receive a shortened URL, which you can use to access the original long URL.
 
@@ -72,6 +74,7 @@ http://localhost:3030/redirectURL/{short_key}
 
 - This page will display the top 3 domains based on the number of times they have been shortened.
 E.g.
+
 ![Top Domains](https://github.com/snehapatil1/url-shortener/blob/master/images/top_domains.png)
 
 ## Dependencies
