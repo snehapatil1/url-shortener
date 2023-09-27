@@ -19,6 +19,7 @@ var domainCountMap = make(map[string]int)
 func setupRoutes() {
 	http.HandleFunc("/", homePageForm)
 	http.HandleFunc("/shortenURL", shortenURL)
+	http.HandleFunc("/redirectURL/", redirectURL)
 }
 
 func main() {
@@ -167,4 +168,20 @@ func capitalizeFirstLetter(s string) string {
 		return s
 	}
 	return strings.ToUpper(s[0:1]) + s[1:]
+}
+
+func redirectURL(w http.ResponseWriter, r *http.Request) {
+	shortKey := strings.TrimPrefix(r.URL.Path, "/redirectURL/")
+	if shortKey == "" {
+		http.Error(w, "Shortened key is missing", http.StatusBadRequest)
+		return
+	}
+
+	originalURL, found := RedisClient().Get(shortKey).Result()
+	if found != nil {
+		http.Error(w, "Shortened key not found", http.StatusNotFound)
+		return
+	}
+
+	http.Redirect(w, r, originalURL, http.StatusMovedPermanently)
 }
